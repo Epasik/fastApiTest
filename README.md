@@ -18,6 +18,7 @@
     POSTGRES_USER=postgres
     POSTGRES_PASSWORD=postgres
     POSTGRES_DB=postgres
+    POSTGRES_HOST=db
     POSTGRES_PORT=5432
 
 3. Соберите и запустите контейнеры:
@@ -27,5 +28,6 @@
 
    API: http://localhost:8000
    Swagger UI: http://localhost:8000/docs
+
 
 
