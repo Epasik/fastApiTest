@@ -52,9 +52,21 @@ def read_products(
 ):
     return crud.get_products(db, limit=limit, name=name)
 
+@app.get(
+    "/products/search",
+    summary="Поиск продуктов по имени",
+    description="Возвращает список продуктов, которые содержат указанное имя",
+    response_model=list[schemas.ProductResponse],
+    status_code=status.HTTP_200_OK
+)
+def read_products_by_name(
+    name: str = Query(..., description="Имя продукта для поиска"),
+    db: Session = Depends(database.get_db)
+):
+    return crud.list_products(db, name=name)
 
 @app.get(
-    "/product/",
+    "/products/id/{product_id}",
     summary="Получить продукт по ID",
     description="Возвращает один продукт по его ID",
     response_model=schemas.ProductResponse,
@@ -62,24 +74,10 @@ def read_products(
     responses={404: {"description": "Продукт не найден"}}
 )
 def read_product(
-    product_id: int = Query(..., description="ID продукта для поиска"),
+    product_id: int = Path(..., description="ID продукта для поиска"),
     db: Session = Depends(database.get_db)
 ):
     return crud.get_product(db, product_id=product_id)
-
-
-@app.get(
-    "/products/{name}",
-    summary="Поиск продуктов по имени",
-    description="Возвращает список продуктов, которые содержат указанное имя",
-    response_model=list[schemas.ProductResponse],
-    status_code=status.HTTP_200_OK
-)
-def read_products_by_name(
-    name: str = Path(..., description="Имя продукта для поиска"),
-    db: Session = Depends(database.get_db)
-):
-    return crud.list_products(db, name=name)
 
 
 @app.put("/products/{product_id}", response_model=schemas.ProductResponse,
@@ -100,7 +98,7 @@ def update_product(
 
 
 @app.delete(
-    "/product_delete/",
+    "/products/{product_id}",
     summary="Удаление продукта",
     description="Удаляет продукт по его ID",
     response_model=schemas.ProductResponse,
@@ -108,7 +106,7 @@ def update_product(
     responses={404: {"description": "Продукт не найден"}}
 )
 def delete_product(
-    product_id: int = Query(..., description="ID продукта для удаления"),
+    product_id: int = Path(..., description="ID продукта для удаления"),
     db: Session = Depends(database.get_db)
 ):
     return crud.delete_product(db, product_id=product_id)
