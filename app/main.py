@@ -3,18 +3,14 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app import schemas, crud, database
 
+
 app = FastAPI(
     title="Test FastAPI CRUD Project",
     description="Проект для тестового задания (CRUD с PostgreSQL)",
     version="1.0.0"
 )
 
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+database.Base.metadata.create_all(bind=database.engine)
 
 @app.get(
     "/",
@@ -38,7 +34,7 @@ def root():
         409: {"description": "Продукт с таким именем уже существует"}
     }
 )
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+def create_product(product: schemas.ProductCreate, db: Session = Depends(database.get_db)):
     return crud.create_product(db=db, product=product)
 
 
@@ -52,7 +48,7 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
 def read_products(
     limit: int = Query(10, description="Максимальное количество полученных элементов"),
     name: Optional[str] = Query(None, description="Фильтр по имени продукта"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     return crud.get_products(db, limit=limit, name=name)
 
@@ -67,7 +63,7 @@ def read_products(
 )
 def read_product(
     product_id: int = Query(..., description="ID продукта для поиска"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     return crud.get_product(db, product_id=product_id)
 
@@ -81,7 +77,7 @@ def read_product(
 )
 def read_products_by_name(
     name: str = Path(..., description="Имя продукта для поиска"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     return crud.list_products(db, name=name)
 
@@ -92,7 +88,7 @@ def read_products_by_name(
 def update_product(
     product_id: int,
     product_update: schemas.ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     existing_product = crud.get_product(db, product_id=product_id)
     if not existing_product:
@@ -113,6 +109,6 @@ def update_product(
 )
 def delete_product(
     product_id: int = Query(..., description="ID продукта для удаления"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(database.get_db)
 ):
     return crud.delete_product(db, product_id=product_id)
