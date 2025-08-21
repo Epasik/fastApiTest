@@ -24,6 +24,8 @@
    ```bash
    docker-compose up --build
 4. Приложение и документация будут доступны по адресам:
+
    API: http://localhost:8000
    Swagger UI: http://localhost:8000/docs
+
 
